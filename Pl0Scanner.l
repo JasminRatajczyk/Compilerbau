@@ -44,7 +44,7 @@ enum
 "in" return IN;
 "else" return ELSE;
 [0-9]+ return ZAHL;
-[a-z A-Z]+[0-9]+ return VARIABLE;
+[a-z A-Z][a-z A-Z 0-9]* return VARIABLE;
 [ \t \n ] /* do nothing */;
 . return FEHLER;
 %%
