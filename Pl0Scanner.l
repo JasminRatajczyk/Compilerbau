@@ -1,18 +1,10 @@
 %{
-/****************************************************
-LEX−Programm zur Berechnung arithmetischer Ausdruecke
-****************************************************/
-#include <string.h>
-#include <stdio.h>
-enum 
-{
-    PLUS = 1, MINUS, MUL, DIV, KLA_AUF, KLA_ZU, ODD, EQUAL, NEQUAL,
-    LESS, LEQUAL, GREATER, GREQUAL, COMMA, SEMICOLON, PERIOD, BECOME,
-    BEGINSYM, END, IF, THEN, WHILE, DO, CALL, CONST, INT, PROCDURE,
-    OUT, IN, ELSE, ZAHL, VARIABLE, FEHLER
-};
+#include <y.tab.h>
+int yyerror();
 %}
 %%
+"/*" return COMMENTSTART;
+"*/" return COMMENTEND;
 "+" return PLUS;
 "−" return MINUS;
 "∗" return MUL;
@@ -39,22 +31,13 @@ enum
 "call" return CALL;
 "const" return CONST;
 "int" return INT;
-"procedure" return PROCDURE;
+"procedure" return PROCEDURE;
 "out" return OUT;
 "in" return IN;
 "else" return ELSE;
 [0-9]+ return ZAHL;
 [a-z A-Z]+[0-9]+ return VARIABLE;
+("\""" .* "\""") return STRING;
 [ \t \n ] /* do nothing */;
 . return FEHLER;
 %%
-
-int main()
-{
-    return 0;
-}
-
-int yywrap() 
-{
-    return 1;
-}
