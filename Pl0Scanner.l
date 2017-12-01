@@ -1,13 +1,11 @@
 %{
-#include <y.tab.h>
+#include "y.tab.h"
 int yyerror();
 %}
 %%
-"/*" return COMMENTSTART;
-"*/" return COMMENTEND;
 "+" return PLUS;
-"−" return MINUS;
-"∗" return MUL;
+"-" return MINUS;
+"*" return MUL;
 "/" return DIV;
 "(" return KLA_AUF;
 ")" return KLA_ZU;
@@ -22,22 +20,26 @@ int yyerror();
 ";" return SEMICOLON;
 "." return PERIOD;
 ":=" return BECOME;
+"/*" return COMMENTSTART;
+"*/" return COMMENTEND;
 "begin" return BEGINSYM;
 "end" return END;
 "if" return IF;
 "then" return THEN;
+"else" return ELSE;
 "while" return WHILE;
 "do" return DO;
 "call" return CALL;
+"procedure" return PROCEDURE;
 "const" return CONST;
 "int" return INT;
-"procedure" return PROCEDURE;
 "out" return OUT;
 "in" return IN;
-"else" return ELSE;
-[0-9]+ return ZAHL;
-[a-z A-Z]+[0-9]+ return VARIABLE;
+"read" return READ;
+"write" return WRITE;
+[0-9]+ printf("ZAHL "); return ZAHL;
+[a-z A-Z]+[0-9]+ return IDENT;
 ("\""" .* "\""") return STRING;
-[ \t \n ] /* do nothing */;
+[\t \n] /* do nothing */;
 . return FEHLER;
 %%

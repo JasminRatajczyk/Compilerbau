@@ -3,13 +3,65 @@
 #include <stdio.h>
 int yylex();
 %}
-%token COMMENTSTART COMMENTEND PLUS MINUS MUL DIV KLA_AUF KLA_ZU ODD EQUAL NEQUAL
-    LESS LEQUAL GREATER GREQUAL COMMA SEMICOLON PERIOD BECOME
-    BEGINSYM END IF THEN WHILE DO CALL CONST INT PROCEDURE
-    OUT IN ELSE ZAHL VARIABLE STRING FEHLER
+%token PLUS MINUS MUL DIV KLA_AUF KLA_ZU 
+       ODD EQUAL NEQUAL 
+       LESS LEQUAL GREATER GREQUAL 
+       COMMA SEMICOLON PERIOD 
+       BECOME
+       COMMENTSTART COMMENTEND
+       BEGINSYM END 
+       IF THEN ELSE 
+       WHILE DO 
+       CALL PROCEDURE
+       CONST INT 
+       OUT IN 
+       READ WRITE 
+       ZAHL IDENT STRING
+       FEHLER
 
 //%union { char t[100]};
 %%
+
+program: block PERIOD;
+
+block: constdeclare
+     | vardeclare
+     | procdeclare
+     | statement
+     ;
+
+constdeclare: CONST IDENT EQUAL ZAHL anotherconstdeclare SEMICOLON ;
+anotherconstdeclare: COMMA IDENT EQUAL ZAHL anotherconstdeclare ;
+
+vardeclare: INT IDENT anothervardeclare SEMICOLON ;
+anothervardeclare: COMMA IDENT ;
+
+procdeclare: { PROCEDURE IDENT SEMICOLON block SEMICOLON };
+
+statement: IDENT BECOME expression
+         | CALL IDENT
+         | BEGINSYM statement { SEMICOLON statement} END 
+         | IF condition THEN statement elseblock
+         | WHILE condition DO statement
+         | READ IDENT
+         | WRITE expression
+         | /* empty */
+         ;
+
+elseblock: ELSE statement;
+
+condition: ODD expression
+         | expression relop expression
+         ;
+
+relop: EQUAL
+     | NEQUAL
+     | LEQUAL
+     | LEQUAL
+     | GREATER
+     | GREQUAL
+     ;
+
 expression: term
           | expression PLUS term
           | expression MINUS term
@@ -18,7 +70,8 @@ term:       factor
           | term MUL factor
           | term DIV factor
           ;
-factor:     ZAHL
+factor:   IDENT
+          | ZAHL
           | KLA_AUF expression KLA_ZU
           | PLUS factor
           | MINUS factor
@@ -26,7 +79,11 @@ factor:     ZAHL
 %%
 int main()
 {
-    printf("%d", yyparse());   
+    int rc = yyparse();
+    if (rc == 0)
+        printf("\n Verdammt nochmal ich bin der Beste!");
+    else 
+        printf("\n Verdammt nochmal ich bin nicht der Beste!!");
     return 0;
 }
 
