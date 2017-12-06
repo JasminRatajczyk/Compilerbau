@@ -36,11 +36,13 @@ anotherconstdeclare: COMMA IDENT EQUAL ZAHL anotherconstdeclare ;
 vardeclare: INT IDENT anothervardeclare SEMICOLON ;
 anothervardeclare: COMMA IDENT ;
 
-procdeclare: { PROCEDURE IDENT SEMICOLON block SEMICOLON };
+
+
+procdeclare: anotherProcdeclare;
 
 statement: IDENT BECOME expression
          | CALL IDENT
-         | BEGINSYM statement { SEMICOLON statement} END 
+         | BEGINSYM statement anotherStatement END 
          | IF condition THEN statement elseblock
          | WHILE condition DO statement
          | READ IDENT
@@ -61,6 +63,14 @@ relop: EQUAL
      | GREATER
      | GREQUAL
      ;
+
+anotherStatement: statement SEMICOLON
+		| /*empty*/
+		;
+
+anotherProcdeclare: PROCEDURE IDENT SEMICOLON block SEMICOLON
+		| /*empty*/
+		;
 
 expression: term
           | expression PLUS term
@@ -86,12 +96,10 @@ int main()
         printf("\n Verdammt nochmal ich bin nicht der Beste!!");
     return 0;
 }
-
 int yywrap() 
 {
     return 1;
 }
-
 int yyerror()
 {
     printf("Error\n");
