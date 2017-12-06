@@ -1,50 +1,4 @@
-<<<<<<< HEAD
-%{
-#include "y.tab.h"
-int yyerror();
-%}
-%%
-"+" return PLUS;
-"-" return MINUS;
-"*" return MUL;
-"/" return DIV;
-"(" return KLA_AUF;
-")" return KLA_ZU;
-"odd" return ODD;
-"=" return EQUAL;
-"<>" return NEQUAL;
-"<" return LESS;
-"<=" return LEQUAL;
-">" return GREATER;
-">=" return GREQUAL;
-"," return COMMA;
-";" return SEMICOLON;
-"." return PERIOD;
-":=" return BECOME;
-"/*" return COMMENTSTART;
-"*/" return COMMENTEND;
-"begin" return BEGINSYM;
-"end" return END;
-"if" return IF;
-"then" return THEN;
-"else" return ELSE;
-"while" return WHILE;
-"do" return DO;
-"call" return CALL;
-"procedure" return PROCEDURE;
-"const" return CONST;
-"int" return INT;
-"out" return OUT;
-"in" return IN;
-"read" return READ;
-"write" return WRITE;
-[0-9]+ printf("ZAHL "); return ZAHL;
-[a-z A-Z]+[0-9]+ return IDENT;
-("\""" .* "\""") return STRING;
-[\t \n] /* do nothing */;
-. return FEHLER;
-%%
-=======
+
 %{
 /****************************************************
 LEX−Programm zur Berechnung arithmetischer Ausdruecke
@@ -62,7 +16,7 @@ enum
 %%
 "+" return PLUS;
 "−" return MINUS;
-"∗" return MUL;
+"*" return MUL;
 "/" return DIV;
 "(" return KLA_AUF;
 ")" return KLA_ZU;
@@ -95,7 +49,7 @@ enum
 [ \t \n ] /* do nothing */;
 . return FEHLER;
 %%
-
+/**
 int main()
 {
     return 0;
@@ -105,4 +59,4 @@ int yywrap()
 {
     return 1;
 }
->>>>>>> 7b86c9767a6ca4cfa59dab80ee51019dc1cc85af
+**/
