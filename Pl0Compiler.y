@@ -22,21 +22,19 @@ block: constdeclare
      ;
 
 constdeclare: CONST IDENT EQUAL ZAHL anotherconstdeclare SEMICOLON
-            | /*empty*/
             ;
 anotherconstdeclare: COMMA IDENT EQUAL ZAHL anotherconstdeclare 
                    | /*empty*/
                    ;
 
 vardeclare: INT IDENT anothervardeclare SEMICOLON
-          | /*empty*/
           ;
 anothervardeclare: COMMA IDENT anothervardeclare
                  | /* empty*/
                  ;
 
 procdeclare: PROCEDURE IDENT SEMICOLON block SEMICOLON procdeclare
-		   | /*empty*/
+           | /*empty*/
 		   ;
 
 statement: IDENT BECOME expression
@@ -53,7 +51,7 @@ elseblock: ELSE statement
          |/*empty*/
          ;
 
-anotherStatement: statement SEMICOLON anotherStatement
+anotherStatement: SEMICOLON statement anotherStatement
 		| /*empty*/
 		;
 
