@@ -4,22 +4,13 @@
 int yylex();
 %}
 %token PLUS MINUS MUL DIV KLA_AUF KLA_ZU 
-       ODD EQUAL NEQUAL 
-       LESS LEQUAL GREATER GREQUAL 
-       COMMA SEMICOLON PERIOD 
-       BECOME
-       COMMENTSTART COMMENTEND
-       BEGINSYM END 
-       IF THEN ELSE 
-       WHILE DO 
-       CALL PROCEDURE
-       CONST INT 
-       OUT IN 
-       READ WRITE 
-       ZAHL IDENT STRING
-       FEHLER
+       ODD EQUAL NEQUAL LESS LEQUAL GREATER 
+       GREQUAL COMMA SEMICOLON PERIOD BECOME
+       BEGINSYM END IF THEN ELSE WHILE DO 
+       CALL PROCEDURE CONST INT OUT IN READ 
+       WRITE ZAHL IDENT FEHLER
 
-//%union { char t[100]};
+%union { char _ident[10]; int _int};
 %%
 
 program: block PERIOD;
@@ -30,15 +21,23 @@ block: constdeclare
      | statement
      ;
 
-constdeclare: CONST IDENT EQUAL ZAHL anotherconstdeclare SEMICOLON ;
-anotherconstdeclare: COMMA IDENT EQUAL ZAHL anotherconstdeclare ;
+constdeclare: CONST IDENT EQUAL ZAHL anotherconstdeclare SEMICOLON
+            | /*empty*/
+            ;
+anotherconstdeclare: COMMA IDENT EQUAL ZAHL anotherconstdeclare 
+                   | /*empty*/
+                   ;
 
-vardeclare: INT IDENT anothervardeclare SEMICOLON ;
-anothervardeclare: COMMA IDENT ;
+vardeclare: INT IDENT anothervardeclare SEMICOLON
+          | /*empty*/
+          ;
+anothervardeclare: COMMA IDENT anothervardeclare
+                 | /* empty*/
+                 ;
 
-
-
-procdeclare: anotherProcdeclare;
+procdeclare: PROCEDURE IDENT SEMICOLON block SEMICOLON procdeclare
+		   | /*empty*/
+		   ;
 
 statement: IDENT BECOME expression
          | CALL IDENT
@@ -50,7 +49,13 @@ statement: IDENT BECOME expression
          | /* empty */
          ;
 
-elseblock: ELSE statement;
+elseblock: ELSE statement
+         |/*empty*/
+         ;
+
+anotherStatement: statement SEMICOLON anotherStatement
+		| /*empty*/
+		;
 
 condition: ODD expression
          | expression relop expression
@@ -58,19 +63,11 @@ condition: ODD expression
 
 relop: EQUAL
      | NEQUAL
-     | LEQUAL
+     | LESS
      | LEQUAL
      | GREATER
      | GREQUAL
      ;
-
-anotherStatement: statement SEMICOLON
-		| /*empty*/
-		;
-
-anotherProcdeclare: PROCEDURE IDENT SEMICOLON block SEMICOLON
-		| /*empty*/
-		;
 
 expression: term
           | expression PLUS term

@@ -5,13 +5,7 @@ LEX−Programm zur Berechnung arithmetischer Ausdruecke
 ****************************************************/
 #include <string.h>
 #include <stdio.h>
-enum 
-{
-    PLUS = 1, MINUS, MUL, DIV, KLA_AUF, KLA_ZU, ODD, EQUAL, NEQUAL,
-    LESS, LEQUAL, GREATER, GREQUAL, COMMA, SEMICOLON, PERIOD, BECOME,
-    BEGINSYM, END, IF, THEN, WHILE, DO, CALL, CONST, INT, PROCDURE,
-    OUT, IN, ELSE, ZAHL, VARIABLE, FEHLER
-};
+#include "yy.tab.h"
 %}
 %%
 "+" return PLUS;
@@ -31,32 +25,25 @@ enum
 ";" return SEMICOLON;
 "." return PERIOD;
 ":=" return BECOME;
+"//".* "\n" /*do nothing*/;
+"/*".* "*/" /*do nothing*/;
 "begin" return BEGINSYM;
 "end" return END;
 "if" return IF;
 "then" return THEN;
+"else" return ELSE;
 "while" return WHILE;
 "do" return DO;
 "call" return CALL;
+"procedure" return PROCEDURE;
 "const" return CONST;
 "int" return INT;
-"procedure" return PROCDURE;
 "out" return OUT;
 "in" return IN;
-"else" return ELSE;
+"read" return READ;
+"write" return WRITE;
 [0-9]+ return ZAHL;
-[a-z A-Z][a-z A-Z 0-9]* return VARIABLE;
+[a-z A-Z][a-z A-Z 0-9]* return IDENT;
 [ \t \n ] /* do nothing */;
 . return FEHLER;
 %%
-/**
-int main()
-{
-    return 0;
-}
-
-int yywrap() 
-{
-    return 1;
-}
-**/
