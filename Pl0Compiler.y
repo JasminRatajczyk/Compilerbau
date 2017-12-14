@@ -15,19 +15,17 @@ int yylex();
 
 program: block PERIOD;
 
-block: constdeclare
-     | vardeclare
-     | procdeclare
-     | statement
-     ;
+block: constdeclare vardeclare procdeclare statement ;
 
 constdeclare: CONST IDENT EQUAL ZAHL anotherconstdeclare SEMICOLON
+            | /*empty*/
             ;
 anotherconstdeclare: COMMA IDENT EQUAL ZAHL anotherconstdeclare 
                    | /*empty*/
                    ;
 
 vardeclare: INT IDENT anothervardeclare SEMICOLON
+          | /*empty*/
           ;
 anothervardeclare: COMMA IDENT anothervardeclare
                  | /* empty*/
