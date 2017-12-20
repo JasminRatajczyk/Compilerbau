@@ -2,3 +2,6 @@
 lex.yy.c
 y.tab.c
 y.tab.h
+Pl0Compiler.y.bak
+Symtab.cpp.bak
+Symtab.h.bak
