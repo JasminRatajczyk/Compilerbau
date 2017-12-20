@@ -8,9 +8,11 @@ int yylex();
        GREQUAL COMMA SEMICOLON PERIOD BECOME
        BEGINSYM END IF THEN ELSE WHILE DO 
        CALL PROCEDURE CONST INT OUT IN READ 
-       WRITE ZAHL IDENT FEHLER
+       WRITE FEHLER
 
 %union { char _ident[10]; int _int};
+%token<_ident> IDENT
+%token<_int> ZAHL
 %%
 
 program: block PERIOD;
