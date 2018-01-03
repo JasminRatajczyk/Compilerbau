@@ -1,5 +1,5 @@
 #include "Symtab.h"
-
+using namespace std;
 class Symtab
 {
 

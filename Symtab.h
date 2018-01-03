@@ -9,13 +9,13 @@ public :
 	symtab();
 	void level_up();
 	void level_down();
-	int insert(const string name, const int typ, const int var);
-	int lookup(string name, int type, int &l, int &o, int blaaa);
+	int insert(const std::string name, const int type, const int var);
+	int lookup(std::string name, int type, int &l, int &o, int blaaa);
 	void print();
 	int get_procnr(){return procnr};
-	int get_procnr(string name);
+	int get_procnr(std::string name);
 private :
-	map<string, sysmtab_entry> content[10];
+	map<std::string, symtab_entry> content[10];
 	int level;
 	int procnr;
 };
