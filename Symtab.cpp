@@ -1,67 +1,83 @@
 #include "Symtab.h"
-using namespace std;
-class Symtab
+#include <iostream>
+
+
+Symtab::Symtab() 
 {
-
-Symtab::Symtab(){
-	level = -1;
-	procnr = 0;
+	m_level = -1;
+	m_procnr = 0;
 }
 
-void Symtab::level_up(){
-	cout << "Symtab-level-up\n";
-	level++;
+void Symtab::level_up() 
+{
+	std::cout << "Symtab-level-up\n";
+	m_level++;
 }
 
-
-void Symtab::level_down(){
-	cout << "Symtab-level-down\n";
-	content[level--].clear();
+void Symtab::level_down() 
+{
+	std::cout << "Symtab-level-down\n";
+	m_content[m_level--].clear();
 }
 
-int Symtab::insert(const string name , const int typ, const int var)
-	{
+int Symtab::insert(const std::string name, const int typ, const int val)
+{
+	int n = m_content[m_level].size(), r = 1;
 
-	int n= content[level].size(), r =1;
-	 
-	if(content[level].find(name)== content[level].end()){
-		content[level][name] =
-			symtab_entry(typ, n, (typ == st_proc)? ++procnr: val)
+	if (m_content[m_level].find(name) == m_content[m_level].end()) {
+		m_content[m_level][name] =
+			symtab_entry(typ, n, (typ == st_proc) ? ++m_procnr : val);
 
-	cout<<"Symtab-insert"<< name << " :"<<content[level][name]<<"/"<<content[level][name].nr
-		<<" procnr: "<<procnr;
-	r=0;
- 	}
+		std::cout 
+			<< "Symtab-insert" 
+			<< name 
+			<< " :" 
+			<< m_content[m_level][name] 
+			<< "/" 
+			<< m_content[m_level][name].getNr()
+			<< " procnr: " << m_procnr;
+		r = 0;
+	}
 	return r;
 }
 
-
-int Symtab::lookup(string name, int type, int &l, int &o, int value){
-	int i =  level +1, rc;
-	cout<<"Symtab-lookup"<<name<<"(Typ"<<type<<")";
-	l=o=-1;
-	while(--i>=0&& content[i].find(name)== content[i].end()){
-		if(i>=0){
-			if(content[i][name].type & type){//keine und Verknüpfung? oder soll das Bitweise sein?
-				l= level -i, o = content[i][name].nr, value = content;
-
-			}else rc=-1;//Falscher Typ
-		}else rc= -2;//Nicht gefunden
+int Symtab::lookup(std::string name, int type, int &l, int &o, int value) 
+{
+	int i = m_level + 1, rc;
+	std::cout << "Symtab-lookup" << name << "(Typ" << type << ")";
+	l = o = -1;
+	while (--i >= 0 && m_content[i].find(name) == m_content[i].end()) {
+		if (i >= 0) {
+			//Bitshifting
+			if (m_content[i][name].getType() & type) {
+				l = m_level - i, o = m_content[i][name].getNr(), value = m_content;
+			}
+			else rc = -1;//Falscher Typ
+		}
+		else rc = -2;//Nicht gefunden
 	}
 	return rc;
 }
 
 
-int Symtab::print(){
-
-	map<string, symtab_entry> ::iterator pos;
-	cout<<"Akt.Level:"<<level<<endl;
-	for(int i=0; i<=level; i++){ 
-		cout<<"Level "<<i<<"Hoehe "<<content[i].size();
-		pos = content[i].begin();
-		for(pos = content[i].begin(); pos!=content[i].end(); ++i)
-			cout<<"Key: "<<(*pos).first<<(*pos).second.nr;
+void Symtab::print() 
+{
+	std::map<std::string, symtab_entry> ::iterator pos;
+	std::cout << "Akt.Level:" << m_level << std::endl;
+	for (int i = 0; i <= m_level; i++) {
+		std::cout << "Level " << i << "Hoehe " << m_content[i].size();
+		pos = m_content[i].begin();
+		for (pos = m_content[i].begin(); pos != m_content[i].end(); ++i)
+			std::cout << "Key: " << (*pos).first << (*pos).second.getNr();
 	}
 }
 
+int Symtab::get_procnr() 
+{
+	return m_procnr;
+}
+
+int Symtab::get_procnr(std::string name) 
+{ 
+	//Not implemented yet
 }

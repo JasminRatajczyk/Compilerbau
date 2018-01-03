@@ -1,21 +1,22 @@
-#include<stdio.h>
-#include<stdlib.h>
+#pragma once
+
 #include "symtab_entry.h"
+#include<string>
+#include<map>
 
-class symtab
+class Symtab
 {
-
-public :
-	symtab();
+public:
+	Symtab();
 	void level_up();
 	void level_down();
 	int insert(const std::string name, const int type, const int var);
-	int lookup(std::string name, int type, int &l, int &o, int blaaa);
+	int lookup(std::string name, int type, int &l, int &o, int value);
 	void print();
-	int get_procnr(){return procnr};
+	int get_procnr();
 	int get_procnr(std::string name);
-private :
-	map<std::string, symtab_entry> content[10];
-	int level;
-	int procnr;
+private:
+	std::map<std::string, symtab_entry> m_content[10];
+	int m_level;
+	int m_procnr;
 };
