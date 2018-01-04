@@ -31,7 +31,6 @@ LEX−Programm zur Berechnung arithmetischer Ausdruecke
 "end" return END;
 "if" return IF;
 "then" return THEN;
-"else" return ELSE;
 "while" return WHILE;
 "do" return DO;
 "call" return CALL;
