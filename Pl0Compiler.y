@@ -1,6 +1,8 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
+#include "Ast.h"
+#include "Symtab.h"
 int yylex();
 %}
 %token PLUS MINUS MUL DIV KLA_AUF KLA_ZU

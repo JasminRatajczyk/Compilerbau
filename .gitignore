@@ -5,3 +5,5 @@ y.tab.h
 Pl0Compiler.y.bak
 Symtab.cpp.bak
 Symtab.h.bak
+Ast.h.bak
+term-treegen.c.bak
