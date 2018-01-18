@@ -1,10 +1,11 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
-#include "Ast.h"
-#include "Symtab.h"
+#include "Symtab/Symtab.hpp"
+#include "Ast/AstGenerator.h"
 int yylex();
 %}
+
 %token PLUS MINUS MUL DIV KLA_AUF KLA_ZU
        ODD EQUAL NEQUAL LESS LEQUAL GREATER
        GREQUAL COMMA SEMICOLON PERIOD BECOME
@@ -19,53 +20,50 @@ int yylex();
 
 program: block PERIOD;
 
-block:  {st.level_up();}
+block:  { yyerror ( !st.level_up() ); }
         constdeclare vardeclare procdeclare statement
-        {st.level_down();}
+        { yyerror ( !st.level_down() ); }
         ;
 
 constdeclare: CONST IDENT EQUAL ZAHL 
-              {st.insert($$->name, st_const);}
+              { yyerror ( !st.insert($2, st_const, $4) ); }
               anotherconstdeclare SEMICOLON
             | /*empty*/
             ;
 
-anotherconstdeclare: COMMA IDENT EQUAL ZAHL {st.insert($$->name, st_const);}
+anotherconstdeclare: COMMA IDENT EQUAL ZAHL 
+                     { yyerror ( !st.insert($2, st_const,$4) ); }
                      anotherconstdeclare
                    | /*empty*/
                    ;
 
-vardeclare: INT 
-            IDENT {st.insert($$->name, st_var);}
-            anothervardeclare 
-            SEMICOLON
+vardeclare: INT IDENT 
+            { yyerror ( !st.insert($2, st_var) ); }
+            anothervardeclare SEMICOLON
           | /*empty*/
           ;
 
-anothervardeclare: COMMA 
-                   IDENT {st.insert($$->name, st_var)}
+anothervardeclare: COMMA IDENT
+                   { yyerror( !st.insert($2, st_var) ); }
                    anothervardeclare
                  | /* empty*/
                  ;
 
-procdeclare: PROCEDURE 
-             IDENT {st.insert($2, st_proc)}
-             SEMICOLON 
-             block 
-             SEMICOLON 
-             procdeclare
+procdeclare: PROCEDURE IDENT 
+             { yyerror ( !st.insert($2, st_proc) ); }
+             SEMICOLON block SEMICOLON procdeclare
            | /*empty*/
 		   ;
 
 statement: IDENT BECOME expression
            {
                int stl, sto;
-               st.lookup($1, st_var, &stl, &sto);
+               { yyerror ( !st.modify($1, st_var, &stl, &sto) ); }
            }
          | CALL IDENT
            {
-               int stl, sto;
-               st.lookup($2, st_proc, &stl, &sto);
+                int stl, sto;
+                yyerror ( !st.lookup($2, st_proc, &stl, &sto) );
            }
          | BEGINSYM statement anotherStatement END 
          | IF condition THEN statement
@@ -116,17 +114,21 @@ factor:   IDENT
 %%
 int main()
 {
+    Symtab st = new_Symtab();
+
     int rc = yyparse();
     if (rc == 0)
-        printf("\n Verdammt nochmal ich bin der Beste!");
+        printf("\n Program executed Successfully!");
     else 
-        printf("\n Verdammt nochmal ich bin nicht der Beste!!");
+        printf("\n Program has been stopped!");
     return 0;
 }
+
 int yywrap() 
 {
     return 1;
 }
+
 int yyerror()
 {
     printf("Error\n");

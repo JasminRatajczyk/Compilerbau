@@ -1,11 +1,11 @@
 
 %{
 /****************************************************
-LEX−Programm zur Berechnung arithmetischer Ausdruecke
+LEX−Programm zur Ausführung von Pl/0 Programmen
 ****************************************************/
 #include <string.h>
 #include <stdio.h>
-#include "yy.tab.h"
+#include "y.tab.h"
 %}
 %%
 "+" return PLUS;
