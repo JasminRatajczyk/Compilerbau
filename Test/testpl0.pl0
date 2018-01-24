@@ -1,0 +1,19 @@
+VAR n, f;
+PROCEDURE fakultaet;
+BEGIN
+    ! n;
+    IF n > 0 THEN
+    BEGIN
+        f := f * n;
+        n := n - 1;
+        CALL fakultaet;
+        n := n + 1;
+    END;
+END;
+BEGIN
+    ? n;
+    f := 1;
+    CALL fakultaet;
+
+    ! f;
+END.

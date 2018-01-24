@@ -2,7 +2,7 @@
 #define __TERM_TREE_H__ 1
 
 #include "Ast.h"
-#include "y.tab.h"
+#include "../Parser.tab.h"
 
 void f_init();
 ast f_start();

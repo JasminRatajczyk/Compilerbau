@@ -6,6 +6,8 @@ Symtab.cpp.bak
 Symtab.h.bak
 Ast.h.bak
 term-treegen.c.bak
-MAKEFILE
+pl0.out
 .vscode/settings.json
 .vscode/c_cpp_properties.json
+Parser.tab.c
+Parser.tab.h

@@ -1,4 +1,6 @@
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "Ast.h"
 
 void tree_output(ast p, int n)
@@ -22,9 +24,9 @@ void tree_code(ast p)
     }
 }
 
-double tree_result(ast p)
+int tree_result(ast p)
 {
-    double erg;
+    int erg;
     switch (p->text[0]) 
     {
         case '+': erg = tree_result(p->l) + tree_result(p->r); break;
@@ -32,6 +34,7 @@ double tree_result(ast p)
         case '*': erg = tree_result(p->l) * tree_result(p->r); break;
         case '/': erg = tree_result(p->l) / tree_result(p->r); break;
         case 'C': erg = - tree_result(p->l);                   break;
+        default:  erg = atof(p->text);
     }
     return erg;
 }

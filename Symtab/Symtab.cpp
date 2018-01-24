@@ -1,5 +1,12 @@
+#include <stdlib.h>
 #include "Symtab.hpp"
-#include <iostream>
+
+Symtab_entry::Symtab_entry(int t, int n, int v) 
+{
+	type = t;
+	nr = n;
+	val = v;
+}
 
 Symtab::Symtab() 
 {
@@ -7,111 +14,88 @@ Symtab::Symtab()
 	m_procnr = 0;
 }
 
-bool Symtab::level_up()
+void Symtab::level_up()
 {
-	if (m_level < Symtab::LEVEL_MAX)
+	if (m_level < LEVEL_MAX)
 	{
-		std::cout << "Symtab-level-up\n";
-		m_level++;
-		return true;
+		m_level++;		
+		std::cout << "level up to: " << m_level << std::endl;
 	}
 	else
 	{
 		std::cout << "Error: Highest Level has been reached!\n";
-		return false;
+		exit (EXIT_FAILURE);
 	}
 }
 
-bool Symtab::level_down()
+void Symtab::level_down()
 {
-	if (m_level > 0)
-	{
-		std::cout << "Symtab-level-down\n";
+	if (m_level > -1)
+	{	
+		std::cout << "level down to: " << m_level << std::endl;
 		m_content[m_level--].clear();
-		return true;
 	}
 	else
 	{
 		std::cout << "Error: Lowest Level has been reached!\n";
-		return false;
+		exit (EXIT_FAILURE);
 	}
 }
 
-bool Symtab::insert(const std::string name, const int typ, const int val)
+void Symtab::insert(const std::string name, const int typ, const int val)
 {
 	int n = m_content[m_level].size();
+
 	if (m_content[m_level].find(name) == m_content[m_level].end()) 
 	{
 		m_content[m_level][name] =
 			Symtab_entry(typ, n, (typ == st_proc) ? ++m_procnr : val);
-
-		std::cout << "Symtab-insert "
-			<< name
-			<< ": "
-			<< m_level
-			<< "/"
-			<< m_content[m_level][name].getNr()
-			<< " procnr: " 
-			<< m_procnr
-			<< std::endl;
-		return true;
+			
+		std::cout << "Symtab insert '" << name << "', " << 
+		"Typ: " << m_content[m_level][name].type << 
+		", level: " << m_level << 
+		", offset: " << m_content[m_level][name].nr << std::endl;
 	}
 	else
 	{
 		std::cout << "Name is already used! \n";
-		return false;
+		exit (EXIT_FAILURE);
 	}
-	
 }
 
-int Symtab::lookup(const std::string name, int type, int &l, int &o, int &value)
+void Symtab::lookup(const std::string name, int type, int &l, int &o, int &value)
 {
 	int i = m_level + 1, rc = 0;
-	std::cout << "Symtab-lookup " << name << " (Typ " << type << ")";
 	l = o = -1;
+	
+	std::cout << "Lookup: '" << name << 
+	"' (Typ " << type << " )" << std::endl;
 
-	while (--i >= 0 && m_content[i].find(name) == m_content[i].end())
+	while (--i >= 0 && m_content[i].find(name) == m_content[i].end()) {}
+
+	if (i >= 0)
 	{
-		if (i >= 0)
+		if (m_content[i][name].type & type) //Bitshifting
 		{
-			if (m_content[i][name].getType() & type) //Bitshifting
-			{
-				l = m_level - i, o = m_content[i][name].getNr(), value = m_content[i][name].getVal();
-			}
-			else
-			{
-				rc = -1; //Falscher Typ
-				std::cout << "ERROR: Wrong type!"
-				  << std::endl;
-			}
+			l = m_level - i;
+			o = m_content[i][name].nr;
+			value = m_content[i][name].val;
+
+			std::cout << "found: name '" << name << "', Type: " 
+			<< m_content[i][name].type << std::endl;
 		}
 		else
 		{
-			rc = -2; //Nicht gefunden
-			std::cout << "ERROR: Symbolname not found!"
+			std::cout << "ERROR: Wrong type!"
 				  << std::endl;
-		}
-	}
-	return rc;
-}
-
-bool Symtab::modify(const std::string name, const int type, const int value)
-{
-	int stl, sto, val, lookupResult;
-	if (type == st_var)
-	{
-		if (Symtab::lookup(name, type, stl, sto, val) >= 0)
-		{
-			m_content[stl][name].setVal(val);
-			return true;
-		}
-
-		return false;
+			exit (EXIT_FAILURE);
+		}			
 	}
 	else
 	{
-		std::cout << "Error: Only Variables are allowed to be modified!";
-		return false;
+		std::cout << "ERROR: Symbolname not found!"
+				  << std::endl;
+		exit (EXIT_FAILURE);
 	}
 }
 
@@ -125,7 +109,7 @@ void Symtab::print()
 		pos = m_content[i].begin();
 		for (pos = m_content[i].begin(); pos != m_content[i].end(); ++i)
 		{
-			std::cout << "Key: " << (*pos).first << (*pos).second.getNr();
+			std::cout << "Key: " << (*pos).first << (*pos).second.nr;
 		}
 	}
 }

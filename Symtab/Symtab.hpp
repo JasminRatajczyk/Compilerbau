@@ -1,17 +1,27 @@
-#pragma once
-#include<map>
-#include<string>
-#include "Symtab_entry.hpp"
+#include <map>
+#include <string>
+#include <iostream>
+
+enum { st_var = 1, st_const = 2, st_proc = 4 };
+
+class Symtab_entry
+{
+	public:
+		Symtab_entry(int = 0, int = 0, int = 0);
+		
+		int type;
+		int nr;
+		int val;
+};
 
 class Symtab
 {
 public:
 	Symtab();
-	bool level_up();
-	bool level_down();
-	bool insert(const std::string name, const int type, const int val);
-	bool modify(const std::string name, const int type, const int val);
-	int lookup(const std::string name, int type, int &l, int &o, int &value);
+	void level_up();
+	void level_down();
+	void insert(const std::string name, const int type, const int val = 0);
+	void lookup(const std::string name, int type, int &l, int &o, int &value);
 	void print();
 	int get_procnr();
 	int get_procnr(const std::string name);

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "AstGenerator.h"
 
+
 ast f_start()
 {
 	scanner(), error = 0;
@@ -68,11 +69,11 @@ ast f_term()
 	ast p;
 	char * txt;
 	p= f_factor();
-	while(token == MAL || token == DIV)
+	while(token == MUL || token == DIV)
 	{
-		txt = (token == MAL)? "*" : "/";
+		txt = (token == MUL)? "*" : "/";
 		scanner();
-		p= new_node(txt, p, f_factor());
+		p= new_node(txt, p, f_factor(),);
 	}
 	return p;
 }

@@ -1,8 +1,22 @@
+Windows:
+
 1. To compile the parser you have to install flex and bison
    (make sure to not install them to C:Program (x86) as bison is not able to recognize whitespaces in directorynames)
 2. Open CMD / Terminal
 3. Go to the directory where your files are stored
-4. execute the following commands (Feel free to use bat):
-    - flex pl0Scanner.l
-    - bison -dy Pl0Compiler.y
-    - gcc lex.yy.c y.tab.c -o compiler.exe
+4. execute the following commands (Feel free to use generate.bat):
+    - flex Scanner.l
+    - bison -d Parser.y
+    - g++ lex.yy.c Parser.tab.c Symtab/Symtab.cpp -o pl0.exe
+
+Linux:
+
+1. To compile the parser you have to install flex and bison (apt install bison / apt install flex / apt install make)
+2. Feel free to use makefile (just type in make) or execute the following comands:
+    - flex Scanner.l
+    - bison -d Parser.y
+    - g++ lex.yy.c Parser.tab.c Symtab/Symtab.cpp -o pl0.out
+3. to execute it type in:
+    - ./pl0.out < [yourpl0file]
+
+-> example: ./pl0.out < Test/testpl0.pl0

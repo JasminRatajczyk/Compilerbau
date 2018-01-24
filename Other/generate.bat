@@ -1,3 +1,3 @@
-flex pl0Scanner.l
-bison -dy Pl0Compiler.y
-gcc lex.yy.c y.tab.c -o compiler.exe
+flex Scanner.l
+bison -d Parser.y
+g++ lex.yy.c Parser.tab.c Symtab/Symtab.cpp -o pl0.exe
