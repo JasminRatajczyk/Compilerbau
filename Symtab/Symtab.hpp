@@ -7,11 +7,10 @@ enum { st_var = 1, st_const = 2, st_proc = 4 };
 class Symtab_entry
 {
 	public:
-		Symtab_entry(int = 0, int = 0, int = 0);
+		Symtab_entry(int = 0, int = 0);
 		
 		int type;
 		int nr;
-		int val;
 };
 
 class Symtab
@@ -20,8 +19,8 @@ public:
 	Symtab();
 	void level_up();
 	void level_down();
-	void insert(const std::string name, const int type, const int val = 0);
-	void lookup(const std::string name, int type, int &l, int &o, int &value);
+	void insert(const std::string name, const int type);
+	void lookup(const std::string name, int type, int &l, int &o);
 	void print();
 	int get_procnr();
 	int get_procnr(const std::string name);

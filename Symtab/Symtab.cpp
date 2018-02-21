@@ -1,11 +1,10 @@
 #include <stdlib.h>
 #include "Symtab.hpp"
 
-Symtab_entry::Symtab_entry(int t, int n, int v) 
+Symtab_entry::Symtab_entry(int t, int n) 
 {
 	type = t;
 	nr = n;
-	val = v;
 }
 
 Symtab::Symtab() 
@@ -42,14 +41,14 @@ void Symtab::level_down()
 	}
 }
 
-void Symtab::insert(const std::string name, const int typ, const int val)
+void Symtab::insert(const std::string name, const int typ)
 {
 	int n = m_content[m_level].size();
 
 	if (m_content[m_level].find(name) == m_content[m_level].end()) 
 	{
 		m_content[m_level][name] =
-			Symtab_entry(typ, n, (typ == st_proc) ? ++m_procnr : val);
+			Symtab_entry(typ, n);
 			
 		std::cout << "Symtab insert '" << name << "', " << 
 		"Typ: " << m_content[m_level][name].type << 
@@ -63,7 +62,7 @@ void Symtab::insert(const std::string name, const int typ, const int val)
 	}
 }
 
-void Symtab::lookup(const std::string name, int type, int &l, int &o, int &value)
+void Symtab::lookup(const std::string name, int type, int &l, int &o)
 {
 	int i = m_level + 1, rc = 0;
 	l = o = -1;
@@ -79,7 +78,6 @@ void Symtab::lookup(const std::string name, int type, int &l, int &o, int &value
 		{
 			l = m_level - i;
 			o = m_content[i][name].nr;
-			value = m_content[i][name].val;
 
 			std::cout << "found: name '" << name << "', Type: " 
 			<< m_content[i][name].type << std::endl;
@@ -122,6 +120,6 @@ int Symtab::get_procnr()
 int Symtab::get_procnr(const std::string name)
 {
 	int l = 0, o = 0, value = 0;
-	lookup(name, st_proc, l, o, value );
+	lookup(name, st_proc, l, o);
 	return value;
 }
