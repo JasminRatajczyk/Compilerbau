@@ -4,6 +4,7 @@ LEX−Programm zur Ausführung von Pl/0 Programmen
 ****************************************************/
 #include <string.h>
 #include <stdio.h>
+#include "Ast/Ast.h"
 #include "Parser.tab.h"
 %}
 %option noyywrap

@@ -1,6 +1,7 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "Symtab/Symtab.hpp"
 #include "Ast/Ast.h"
 
@@ -30,22 +31,22 @@ Symtab st;
 %token<_ident> t_IDENT
 %token<_int> t_ZAHL
 
-%type<_ident> relop
-%type<_block> block procdeclare
-%type<_statement> statement anotherStatement
-%type<_variable> vardeclare anothervardeclare constdeclare anotherconstdeclare
-%type<_expression> expression term factor condition
+%type <_ident> relop
+%type <_block> block procdeclare
+%type <_statement> statement anotherStatement
+%type <_variable> vardeclare anothervardeclare constdeclare anotherconstdeclare
+%type <_expression> expression term factor condition
 %%
 
 program: block t_PERIOD;
 
 block:
 { 
-    st.level_up(); 
-    $$ = new_block($1, $2, $3, $4);
+    st.level_up();
 }
 constdeclare vardeclare procdeclare statement
 { 
+    $$ = new_block($2, $3, $4, $5); 
     st.level_down(); 
 }
 ;
@@ -53,30 +54,27 @@ constdeclare vardeclare procdeclare statement
 constdeclare: t_CONST t_IDENT t_EQUAL t_ZAHL
               { 
                   int stl, sto;
-                  st.insert ( $2 , st_const );
+                  st.insert ( $<_ident>2 , st_const );
+              }
+              anotherconstdeclare t_SEMICOLON
+              {
+                  int stl, sto;
                   st.lookup($2, st_const, stl, sto);
-                  $$ = new_variable(st_const, stl, sto, NULL);
+                  $$ = new_variable(st_const, stl, sto, $6);
               }
-              anotherconstdeclare 
-              { 
-                  $$->next = $5; 
-              } 
-              t_SEMICOLON {
-                  
-              }
-            | { $$ = NULL;} /*empty*/
-            ;
+              | { $$ = NULL;} /*empty*/
+              ;
 
 anotherconstdeclare: t_COMMA t_IDENT t_EQUAL t_ZAHL
                      { 
                          int stl, sto;
-                         st.insert ( $2 , st_const );
-                         st.lookup($2, st_const, stl, sto);
-                         $$ = new_variable(st_const, stl, sto, NULL);
-                     }
+                         st.insert ( $<_ident>2 , st_const );
+                     } 
                      anotherconstdeclare 
                      { 
-                         $$->next = $5; 
+                         int stl, sto;
+                         st.lookup($2, st_const, stl, sto);
+                         $$ = new_variable(st_const, stl, sto, $6);
                      }
                    | { $$ = NULL; } /*empty*/
                    ;
@@ -84,43 +82,39 @@ anotherconstdeclare: t_COMMA t_IDENT t_EQUAL t_ZAHL
 vardeclare: t_VAR t_IDENT
             {
                 int stl, sto;
-                st.insert ( $2, st_var );
-                st.lookup ( $2, st_var, stl, sto );
-                $$ = new_variable ( st_var, stl, sto, NULL ); 
+                st.insert ( $<_ident>2, st_var ); 
             }
-            anothervardeclare 
+            anothervardeclare t_SEMICOLON
             { 
-                $$->next = $3; 
-            } 
-            t_SEMICOLON
-          | { $$ = NULL; } /*empty*/
-          ;
+                int stl, sto;
+                st.lookup ( $2, st_var, stl, sto );
+                $$ = new_variable ( st_var, stl, sto, $4 ); 
+            }
+            | { $$ = NULL; } /*empty*/
+            ;
 
 anothervardeclare: t_COMMA t_IDENT 
                    {    
                         int stl, sto;
-                        st.insert ( $2, st_var );
-                        st.lookup ( $2, st_var, stl, sto );
-                        $$ = new_variable ( st_var, stl, sto, $3 );
+                        st.insert ( $<_ident>2, st_var );
                     }
                     anothervardeclare 
-                    { 
-                        $$->next = $3;
+                    {
+                        int stl, sto;
+                        st.lookup ( $2, st_var, stl, sto );
+                        $$ = new_variable ( st_var, stl, sto, $4 );
                     }
-
                  | { $$ = NULL; } /* empty*/
                  ;
 
-procdeclare: t_PROCEDURE t_IDENT //AST FINISHED
+procdeclare: t_PROCEDURE t_IDENT
              { 
-                 st.insert ( $2, st_proc ); 
+                 st.insert ( $<_ident>2, st_proc ); 
              }
-             t_SEMICOLON 
-             block 
+             t_SEMICOLON block t_SEMICOLON procdeclare
              {
-                 $$ = $4; 
+                 $$ = $5;
              }
-             t_SEMICOLON procdeclare
            | { $$ = NULL; } /*empty*/
 		   ;
 
@@ -140,15 +134,15 @@ statement: t_IDENT t_ASSIGN expression
          | t_BEGIN statement anotherStatement t_END
          {
             $2->next = $3;
-            $$ = $3;
+            $$ = $2; //TODO
          }
          | t_IF condition t_THEN statement
          {
-            $$ = new_statement ( stmnt_if, -1, -1, $2, $4);
+            $$ = new_statement ( stmnt_if, -1, -1,  $4, $2);
          }
          | t_WHILE condition t_DO statement
          {
-            $$ = new_statement ( stmnt_while, -1, -1, $2, $4);
+            $$ = new_statement ( stmnt_while, -1, -1, $4, $2);
          }
          | t_READ t_IDENT
          {
@@ -165,14 +159,15 @@ statement: t_IDENT t_ASSIGN expression
 
 anotherStatement: t_SEMICOLON statement anotherStatement //AST FINISHED
 		        {
-                    $$ = new_statement ( stmnt_end, -1, -1, $4, NULL);
+                    $$ = $2;
+                    $$->next = $3;
                 }
                 | { $$ = NULL;} /*empty*/
 		        ;
 
 condition: t_ODD expression //AST FINISHED
          {
-             $$ = new_expression ("ODD", $2, NULL);
+             $$ = new_expression ((char*)"ODD", $2, NULL);
          }
          | expression relop expression
          {
@@ -180,31 +175,31 @@ condition: t_ODD expression //AST FINISHED
          }
          ;
 
-relop: t_EQUAL   { $$ = "=" ; } //AST FINISHED
-     | t_NEQUAL  { $$ = "#" ; } 
-     | t_GREATER { $$ = ">" ; }
-     | t_LESS    { $$ = "<" ; }
-     | t_GREQUAL { $$ = ">="; }
-     | t_LEQUAL  { $$ = "<="; }
+relop: t_EQUAL   { strncpy($$, "=",  sizeof($$) ); } //AST FINISHED
+     | t_NEQUAL  { strncpy($$, "#",  sizeof($$) ); } 
+     | t_GREATER { strncpy($$, ">",  sizeof($$) ); }
+     | t_LESS    { strncpy($$, "<",  sizeof($$) ); }
+     | t_GREQUAL { strncpy($$, ">=", sizeof($$) ); }
+     | t_LEQUAL  { strncpy($$, "<=", sizeof($$) ); }
      ;
 
-expression: term                    { $$ = new_expression (" ", $1, NULL);  } //AST FINISHED
-          | expression t_PLUS term  { $$ = new_expression ("+", $1, $3);    }
-          | expression t_MINUS term { $$ = new_expression ("-", $1, $3);    }
+expression: term                    { $$ = new_expression ((char*)" ", $1, NULL);  } //AST FINISHED
+          | expression t_PLUS term  { $$ = new_expression ((char*)"+", $1, $3);    }
+          | expression t_MINUS term { $$ = new_expression ((char*)"-", $1, $3);    }
           ;
-term:       factor            { $$ = new_expression (" ", $1, NULL); } //AST FINISHED
-          | term t_MUL factor { $$ = new_expression ("*", $1, $3);   }
-          | term t_DIV factor { $$ = new_expression ("/", $1, $3);   }
+term:       factor            { $$ = new_expression ((char*)" ", $1, NULL); } //AST FINISHED
+          | term t_MUL factor { $$ = new_expression ((char*)"*", $1, $3);   }
+          | term t_DIV factor { $$ = new_expression ((char*)"/", $1, $3);   }
           ;
 factor:     t_IDENT 
             {
                 int stl, sto, val;
                 st.lookup($1, st_var | st_const,stl, sto);
-                $$ = new_expression (" ", $1, NULL); //TODO
-            } //nicht sicher
-          | t_ZAHL                        { $$ = new_expression (" ", $1, NULL); }
-          | t_PLUS factor                 { $$ = new_expression ("+", $2, NULL); }
-          | t_MINUS factor                { $$ = new_expression ("C", $2, NULL); }
+                $$ = new_expression ((char*)"I", NULL, NULL, stl, sto);
+            }
+          | t_ZAHL                        { $$ = new_expression ((char*) t_ZAHL, NULL, NULL); }
+          | t_PLUS factor                 { $$ = new_expression ((char*)"+", $2, NULL); }
+          | t_MINUS factor                { $$ = new_expression ((char*)"C", $2, NULL); }
           | t_KLA_AUF expression t_KLA_ZU { $$ = $2; }
           ;
 

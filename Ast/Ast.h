@@ -55,6 +55,8 @@ struct e_node //expression, factor, term
     char text[10];
     expression l;
     expression r;
+	int sto;
+	int stl;
 };
 
 //BLOCK
@@ -62,7 +64,7 @@ void block_output ( block , int );
 void block_code ( block );
 void block_free ( block );
 double block_result ( block );
-block new_block ();
+block new_block ( variable, variable, block, statement );
 
 //STATEMENT
 void statement_output ( statement , int );
@@ -84,5 +86,12 @@ void expression_code ( expression );
 void expression_free ( expression );
 double expression_result ( expression );
 expression new_expression ( char *, expression, expression );
+expression new_expression ( char *, expression, expression, int, int );
+
+
+void tree_code(node);
+void tree_output(node);
+double tree_result();
+void tree_free();
 
 #endif
