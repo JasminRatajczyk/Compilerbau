@@ -4,12 +4,15 @@
 #include <string.h>
 #include "Symtab/Symtab.hpp"
 #include "Ast/Ast.h"
+#include "Memory/Memory.hpp"
 
 void yyerror(const char* s);
 int yylex();
 int yyparse();
 
 Symtab st;
+Memory* mem = new Memory();
+block root;
 %}
 
 %token t_PLUS t_MINUS t_MUL t_DIV t_KLA_AUF t_KLA_ZU
@@ -38,7 +41,7 @@ Symtab st;
 %type <_expression> expression term factor condition
 %%
 
-program: block t_PERIOD;
+program: block t_PERIOD {root = $1};
 
 block:
 { 
@@ -93,8 +96,8 @@ vardeclare: t_VAR t_IDENT
             | { $$ = NULL; } /*empty*/
             ;
 
-anothervardeclare: t_COMMA t_IDENT 
-                   {    
+anothervardeclare:  t_COMMA t_IDENT 
+                    {    
                         int stl, sto;
                         st.insert ( $<_ident>2, st_var );
                     }
@@ -104,8 +107,8 @@ anothervardeclare: t_COMMA t_IDENT
                         st.lookup ( $2, st_var, stl, sto );
                         $$ = new_variable ( st_var, stl, sto, $4 );
                     }
-                 | { $$ = NULL; } /* empty*/
-                 ;
+                  | { $$ = NULL; } /* empty*/
+                  ;
 
 procdeclare: t_PROCEDURE t_IDENT
              { 
@@ -122,37 +125,39 @@ statement: t_IDENT t_ASSIGN expression
          {
             int sto, stl;
             st.lookup($1, st_var, sto, stl );
-            $$ = new_statement ( stmnt_assign, stl, sto, NULL, $3 );
+            $$ = new_statement ( stmnt_assign, stl, sto, NULL, $3, mem );
          }
          | t_CALL t_IDENT
          {
             int sto, stl;
             st.lookup($2, st_proc, sto, stl );
 
-            $$ = new_statement (stmnt_call, sto, stl, NULL, NULL ); //TODO
+            $$ = new_statement (stmnt_call, sto, stl, NULL, NULL, mem ); //TODO
          }
          | t_BEGIN statement anotherStatement t_END
          {
-            $2->next = $3;
-            $$ = $2; //TODO
+             if ($2) {
+                $2->next = $3;
+                $$ = $2;
+             }
          }
          | t_IF condition t_THEN statement
          {
-            $$ = new_statement ( stmnt_if, -1, -1,  $4, $2);
+            $$ = new_statement ( stmnt_if, -1, -1,  $4, $2, mem);
          }
          | t_WHILE condition t_DO statement
          {
-            $$ = new_statement ( stmnt_while, -1, -1, $4, $2);
+            $$ = new_statement ( stmnt_while, -1, -1, $4, $2, mem);
          }
          | t_READ t_IDENT
          {
             int sto, stl;
             st.lookup($2, st_var, sto, stl );
-            $$ = new_statement ( stmnt_read, stl, sto, NULL, NULL);
+            $$ = new_statement ( stmnt_read, stl, sto, NULL, NULL, mem);
          }
          | t_WRITE expression
          {
-            $$ = new_statement ( stmnt_write, -1, -1, NULL, $2);
+            $$ = new_statement ( stmnt_write, -1, -1, NULL, $2, mem);
          }
          | { $$ = NULL; } /* empty */
          ;
@@ -167,11 +172,11 @@ anotherStatement: t_SEMICOLON statement anotherStatement //AST FINISHED
 
 condition: t_ODD expression //AST FINISHED
          {
-             $$ = new_expression ((char*)"ODD", $2, NULL);
+             $$ = new_expression ((char*)"ODD", $2, NULL, mem);
          }
          | expression relop expression
          {
-             $$ = new_expression ($2, $1, $3);
+             $$ = new_expression ($2, $1, $3, mem);
          }
          ;
 
@@ -183,23 +188,23 @@ relop: t_EQUAL   { strncpy($$, "=",  sizeof($$) ); } //AST FINISHED
      | t_LEQUAL  { strncpy($$, "<=", sizeof($$) ); }
      ;
 
-expression: term                    { $$ = new_expression ((char*)" ", $1, NULL);  } //AST FINISHED
-          | expression t_PLUS term  { $$ = new_expression ((char*)"+", $1, $3);    }
-          | expression t_MINUS term { $$ = new_expression ((char*)"-", $1, $3);    }
+expression: term                    { $$ = new_expression ((char*)" ", $1, NULL, mem);  } //AST FINISHED
+          | expression t_PLUS term  { $$ = new_expression ((char*)"+", $1, $3, mem);    }
+          | expression t_MINUS term { $$ = new_expression ((char*)"-", $1, $3, mem);    }
           ;
-term:       factor            { $$ = new_expression ((char*)" ", $1, NULL); } //AST FINISHED
-          | term t_MUL factor { $$ = new_expression ((char*)"*", $1, $3);   }
-          | term t_DIV factor { $$ = new_expression ((char*)"/", $1, $3);   }
+term:       factor            { $$ = new_expression ((char*)" ", $1, NULL, mem); } //AST FINISHED
+          | term t_MUL factor { $$ = new_expression ((char*)"*", $1, $3, mem);   }
+          | term t_DIV factor { $$ = new_expression ((char*)"/", $1, $3, mem);   }
           ;
 factor:     t_IDENT 
             {
                 int stl, sto, val;
                 st.lookup($1, st_var | st_const,stl, sto);
-                $$ = new_expression ((char*)"I", NULL, NULL, stl, sto);
+                $$ = new_expression ((char*)"I", NULL, NULL, mem, stl, sto);
             }
-          | t_ZAHL                        { $$ = new_expression ((char*) t_ZAHL, NULL, NULL); }
-          | t_PLUS factor                 { $$ = new_expression ((char*)"+", $2, NULL); }
-          | t_MINUS factor                { $$ = new_expression ((char*)"C", $2, NULL); }
+          | t_ZAHL                        { $$ = new_expression ((char*) t_ZAHL, NULL, NULL, mem); }
+          | t_PLUS factor                 { $$ = new_expression ((char*)"+", $2, NULL, mem); }
+          | t_MINUS factor                { $$ = new_expression ((char*)"C", $2, NULL, mem); }
           | t_KLA_AUF expression t_KLA_ZU { $$ = $2; }
           ;
 
@@ -207,14 +212,26 @@ factor:     t_IDENT
 int main()
 {
     int rc = yyparse();
+    
     if (rc == 0)
     {
+        if(root){
+            printf("Output: \n");
+            block_output(root);
+            printf("Tree: \n");
+            block_result(root);
+        }
+        else{
+            printf("Output: empty\n");
+            printf("Tree: empty\n");
+        }
         printf("\n Program executed Successfully!\n");
     }
     else
     {
         printf("\n Program has been stopped!\n");
     }
+    if(root)block_free(root);
     return 0;
 }
 

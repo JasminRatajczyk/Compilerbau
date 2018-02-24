@@ -1,20 +1,8 @@
 #include "Memory.hpp"
 
-Memory* Memory::instance = 0;
-
 Memory::Memory()
 {
     RAM.push_back(0);
-}
-
-Memory* Memory::getInstance()
-{
-    if (instance == 0)
-    {
-        instance = new Memory();
-    }
-
-    return instance;
 }
 
 int Memory::getAdr (int delta, int nr)

@@ -5,22 +5,6 @@
 
 
 /*************************** Block functions *************************************/
-
-block new_block (variable c, variable v, block b, statement s)
-{
-    block p = (block) malloc(sizeof(block_node));
-    if (p != NULL)
-    {
-        p->constants = c;
-        p->variables = v;
-        p->blocks = b;
-        p->statements = s;
-    }
-
-    return p;
-}
-
-
 void block_output ( block b , int n){
     if ( b )
     {
@@ -62,6 +46,7 @@ void block_code ( block p){
         if(p->blocks){
             block_code(p->blocks);
         }
+
         
     }
 }
@@ -71,28 +56,67 @@ void block_free ( block p){
         if(p->constants!=NULL)variable_free(p->constants);
         if(p->variables!=NULL)variable_free(p->variables);
         if(p->statements!=NULL)statement_free(p->statements);
-        if(p->blocks)statement_free(p->blocks);
+        if(p->blocks)block_free(p->blocks);
         free(p);
     }
 }
 double block_result ( block b){
     if(b!=NULL){
         if(b->statements)statement_result(b->statements);
-        
+        if(b->blocks)block_result(b->blocks);
+    }
+}
+
+block new_block (variable c, variable v, block b, statement s)
+{
+    block p = (block) malloc(sizeof(block_node));
+    if (p != NULL)
+    {
+        p->constants = c;
+        p->variables = v;
+        p->blocks = b;
+        p->statements = s;
     }
 
+    return p;
 }
 
 /*************************** Statement functions *********************************/
 
-void statement_free ( statement s){
-    if(s->cond)expression_free(s->cond);
-    if(s->next)statement_free(s->next);
-    free(s);
-}
 
 void statement_output(statement p, int n){
-    printf();
+    if(p){
+        printf("%d", n);
+        if(p->cond){
+            switch(p->type){
+                case stmnt_assign:                   
+                    printf("Assign: %d %d %d", p->stl, p->sto, n); 
+                    expression_output(p->cond, n+1);                     
+                    break;
+                case stmnt_read:
+                    printf("Read: %d %d %d", p->stl, p->sto);
+                    break;
+                case stmnt_write:
+                    printf("Write: %d %d", p->mem.getVal(p->stl, p->sto),n);
+                    break;
+                case stmnt_if:
+                    printf("If: %d", n);
+                    expression_output(p->cond, n+1);
+                    if(p->next)statement_output(p->next, n+1);
+                    break;
+                case stmnt_while:
+                    printf("While: %d", n);
+                    expression_output(p->cond, n+1);
+                    statement_output(p->next, n+1);
+                    break;
+                case stmnt_call:
+                    break;
+            }
+        }
+            
+        
+        if(p->next)statement_output(p->next, n+1);
+            }
 }
 
 void statement_code(statement p){
@@ -101,26 +125,31 @@ void statement_code(statement p){
             switch(p->type){
                 case stmnt_assign: 
                     expression_code(p->cond);
-                    printf("Assign: %d %d", p->stl, p->sto);                      
+                    printf("Assign: %d %d", p->stl, p->sto);
+                    break;
                 case stmnt_read:
                     printf("Read: %d %d", p->stl, p->sto);
+                    break;
                 case stmnt_write:
-                    printf("Write: %d", mem.getVal(p->stl, p->sto));
+                    printf("Write: %d", p->mem.getVal(p->stl, p->sto));
+                    break;
                 case stmnt_if:
                     expression_code(p->cond);
-                    statement_code(p->next);
+                    if(p->next)statement_code(p->next);
                     printf("If: ");
+                    break;
                 case stmnt_while:
                     expression_code(p->cond);
-                    statement_code(p->next);
+                    if(p->next)statement_code(p->next);
                     printf("While: ");
-                case stmnt_end:
-
+                    break;
                 case stmnt_call:
+                
+                    break;
             }
         }
-        if(p->next)expression_code(p->next);
-        printf("%d %d %d", p->type, p->stl, p->sto);
+        
+        if(p->next)statement_code(p->next);
     }
 }
 
@@ -129,12 +158,12 @@ double statement_result (statement p)
     switch ( p->type )
     {
         case stmnt_assign:
-            mem.setVal(p->stl, p->sto, expression_result(p->cond));
+            p->mem.setVal(p->stl, p->sto, expression_result(p->cond));
             break;
         case stmnt_read:
             int input;
             scanf("input: %d", input);
-            mem.setVal(p->stl, p->sto, input);
+            p->mem.setVal(p->stl, p->sto, input);
             break;
         case stmnt_write:
             printf ("%d",expression_result( p->cond ));
@@ -160,13 +189,21 @@ double statement_result (statement p)
             } while (next->next);
             break;
         case stmnt_call:
-            //TODO
+            ////p->mem.ram_neusegment(p->stl, p->sto);
+            //block_result() blabl
+            //p->mem.ram_loeschsegemnt(p->stl, p->sto);
             break;
         default:
     }
 }
 
-statement new_statement (int t, int l, int o, statement st, expression ex)
+void statement_free ( statement s){
+    if(s->cond)expression_free(s->cond);
+    if(s->next)statement_free(s->next);
+    free(s);
+}
+
+statement new_statement (int t, int l, int o, statement st, expression ex, Memory* mem)
 {
     statement p = (statement) malloc(sizeof(statement_node));
     if ( p != NULL )
@@ -179,8 +216,6 @@ statement new_statement (int t, int l, int o, statement st, expression ex)
     }
     return p;
 }
-
-
 
 /*************************  Variable functions  **********************************/
 
@@ -222,6 +257,8 @@ variable new_variable(int type, int level, int offset, variable n)
     return p;
 }
 
+
+
 /************************* Expression functions **********************************/
 
 void expression_output (expression p, int n)
@@ -262,7 +299,7 @@ double expression_result (expression p)
         case '<=': erg =         expression_result ( p->l ) <= expression_result ( p->r ); break;
         case  'O': erg =   (int) expression_result ( p->l ) %  2;                          break;
         case  'C': erg =       - expression_result ( p->l );                               break;
-        case  'I': erg =         mem.getVal(p->stl, p->sto);
+        case  'I': erg =         p->mem.getVal(p->stl, p->sto);                            break;
         default:   erg =         atof(p->text);
     }
     return erg;
@@ -278,7 +315,7 @@ void expression_free (expression p)
     }
 }
 
-expression new_expression ( char *t, expression l, expression r )
+expression new_expression ( char *t, expression l, expression r, Memory* mem )
 {
     expression p = (expression) malloc (sizeof (expression_node));
     if ( p != NULL )
@@ -289,7 +326,7 @@ expression new_expression ( char *t, expression l, expression r )
     return p;
 }
 
-expression new_expression ( char *t, expression l, expression r, int sto, int stl)
+expression new_expression ( char *t, expression l, expression r, Memory* mem, int sto, int stl)
 {
     expression p = (expression) malloc (sizeof (expression_node));
     if ( p != NULL )

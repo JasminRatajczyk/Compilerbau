@@ -4,8 +4,6 @@
 #ifndef __PL_TREE_H__
 #define __PL_TREE_H__ 1
 
-static Memory mem ;
-
 typedef struct b_node * block;
 typedef struct b_node block_node;
 
@@ -40,6 +38,7 @@ struct s_node // used for all kinds of statements
 	int sto;	//Offset der Symboltabellen fuer assign und read
 	statement  next; //Naechster Befehl
 	expression cond; //Abhaengige Kette fuer if und while
+	Memory* mem;
 };
 
 struct v_node //used for variable and const
@@ -48,6 +47,7 @@ struct v_node //used for variable and const
 	int stl;
 	int sto;
 	variable next;
+	Memory* mem;
 };
 
 struct e_node //expression, factor, term
@@ -57,6 +57,7 @@ struct e_node //expression, factor, term
     expression r;
 	int sto;
 	int stl;
+	Memory* mem;
 };
 
 //BLOCK
@@ -64,20 +65,20 @@ void block_output ( block , int );
 void block_code ( block );
 void block_free ( block );
 double block_result ( block );
-block new_block ( variable, variable, block, statement );
+block new_block ( variable, variable, block, statement);
 
 //STATEMENT
 void statement_output ( statement , int );
 void statement_code ( statement );
 void statement_free ( statement );
 double statement_result ( statement );
-statement new_statement (int, int, int, statement, expression);
+statement new_statement (int, int, int, statement, expression, Memory* );
 
 //VARIABLE
 void variable_output ( variable , int );
 void variable_code ( variable );
 void variable_free ( variable );
-double variable_result ( variable );
+double variable_result ( variable);
 variable new_variable (int, int, int, variable);
 
 //EXPRESSION
@@ -85,13 +86,13 @@ void expression_output ( expression , int );
 void expression_code ( expression );
 void expression_free ( expression );
 double expression_result ( expression );
-expression new_expression ( char *, expression, expression );
-expression new_expression ( char *, expression, expression, int, int );
+expression new_expression ( char *, expression, expression, Memory*  );
+expression new_expression ( char *, expression, expression, Memory*, int, int );
 
-
+/*
 void tree_code(node);
 void tree_output(node);
 double tree_result();
 void tree_free();
-
+*/
 #endif
