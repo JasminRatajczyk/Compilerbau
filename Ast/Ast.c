@@ -427,7 +427,7 @@ double expression_result (expression p)
     }
     
     printf("V %d\n", v);
-        
+
     switch (p->text[0]) 
     {
         case  '+': erg =         expression_result ( p->l ) +  expression_result ( p->r ); break;

@@ -269,12 +269,36 @@ condition: t_ODD expression
          }
          ;
 
-relop: t_EQUAL   { strncpy($$, "=",  sizeof($$)); printf("EqualRelop\n" );}
-     | t_NEQUAL  { strncpy($$, "#",  sizeof($$)); printf("NequalRelop\n");} 
-     | t_GREATER { strncpy($$, ">",  sizeof($$)); printf("GreaterRelop\n");}
-     | t_LESS    { strncpy($$, "<",  sizeof($$)); printf("LessRelop\n");}
-     | t_GREQUAL { strncpy($$, "|",  sizeof($$)); printf("GrequalRelop\n");}
-     | t_LEQUAL  { strncpy($$, ".",  sizeof($$)); printf("LequalRelop\n");}
+relop: t_EQUAL   
+     { 
+         snprintf($$, sizeof($$), "="); 
+         printf("EqualRelop\n" );
+     }
+     | t_NEQUAL  
+     { 
+         snprintf($$, sizeof($$), "#"); 
+         printf("NequalRelop\n");
+     } 
+     | t_GREATER 
+     { 
+         snprintf($$, sizeof($$), ">"); 
+         printf("GreaterRelop\n");
+     }
+     | t_LESS    
+     { 
+        snprintf($$, sizeof($$), "<"); 
+        printf("LessRelop\n");
+     }
+     | t_GREQUAL 
+     { 
+        snprintf($$, sizeof($$), "|"); 
+        printf("GrequalRelop\n");
+     }
+     | t_LEQUAL  
+     {         
+        snprintf($$, sizeof($$), "."); 
+        printf("LequalRelop\n");
+     }
      ;
 
 expression: term
