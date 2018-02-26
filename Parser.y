@@ -271,32 +271,32 @@ condition: t_ODD expression
 
 relop: t_EQUAL   
      { 
-         snprintf($$, sizeof($$), "="); 
+         snprintf($$, 9, "="); 
          printf("EqualRelop\n" );
      }
      | t_NEQUAL  
      { 
-         snprintf($$, sizeof($$), "#"); 
+         snprintf($$, 9, "#"); 
          printf("NequalRelop\n");
      } 
      | t_GREATER 
      { 
-         snprintf($$, sizeof($$), ">"); 
+         snprintf($$, 9, ">"); 
          printf("GreaterRelop\n");
      }
      | t_LESS    
      { 
-        snprintf($$, sizeof($$), "<"); 
+        snprintf($$, 9, "<"); 
         printf("LessRelop\n");
      }
      | t_GREQUAL 
      { 
-        snprintf($$, sizeof($$), "|"); 
+        snprintf($$, 9, "|"); 
         printf("GrequalRelop\n");
      }
      | t_LEQUAL  
      {         
-        snprintf($$, sizeof($$), "."); 
+        snprintf($$, 9, "."); 
         printf("LequalRelop\n");
      }
      ;

@@ -221,11 +221,11 @@ double statement_result (statement p)
     printf("X type: %d\n", p->type);
     if(p->follow)
     {
-        printf("FOUND ONE\n");
+        printf("Found Follow\n");
     }
     else
     {
-        printf("FOUND NONE\n");
+        printf("No Follow\n");
     }
     switch ( p->type )
     {
@@ -243,9 +243,7 @@ double statement_result (statement p)
             int input;
             printf("input: "); 
             scanf("%d", &input);
-            printf("stl: %d\n", p->stl);
-            printf("sto: %d\n", p->sto);
-            p->mem->setVal(p->sto, p->stl, input);
+            p->mem->setVal(p->stl, p->sto, input);
             break;
         }
         case stmnt_write:
@@ -277,9 +275,7 @@ double statement_result (statement p)
         }
         case stmnt_call:
         {
-             printf("CAAAAAAAAAAALL, man tötet keine Menschennnnnnn!\n");
-           
-            if(p->b){
+             if(p->b){
                 block b = p->b;
                 int n =0;
                 if(b->constants!=NULL){
@@ -304,7 +300,6 @@ double statement_result (statement p)
                 p->mem->ram_neusegment(n, p->stl);
                 block_result(b);
                 p->mem->ram_loeschsegment();
-                printf("CAAAAAAAAAAALL, man tötet keine Menschen!\n");
             }
             else printf("The function does not exist\n");            
             break;
@@ -418,15 +413,18 @@ void expression_free (expression p)
 
 double expression_result (expression p)
 {
-    double erg;
+
+    double erg, first, second;
     int v; 
     
     if(p->stl>=0 && p->sto>=0)
     {
+
        v = p->mem->getVal(p->stl, p->sto);
     }
-    
+
     printf("V %d\n", v);
+
 
     switch (p->text[0]) 
     {
@@ -442,7 +440,7 @@ double expression_result (expression p)
         case  '.': erg =         expression_result ( p->l ) <= expression_result ( p->r ); break;
         case  'O': erg =   (int) expression_result ( p->l ) %  2;                          break;
         case  'C': erg =       - expression_result ( p->l );                               break;
-        case  'I': erg =         v;                                                        break;
+        case  'I': erg =         v; printf("%d\n",v);                                      break;
         default:   erg =         atof(p->text); printf("expression_result: Erg lautet %f und text %s\n", erg, p->text);
     }    
     return erg;
@@ -464,10 +462,11 @@ expression new_expression ( char *t, expression l, expression r, Memory* mem )
     
     if(t)
     {
-        if(!p->text) printf("text is fucked");
+        if(!p->text) {
         strncpy(p->text, t, 9);
         printf("\n!\n!p-> %s\n!\n", p->text);
         printf("\n!\n!p-> %s\n!\n", t);
+        }else printf("ERR: No name inserted\n");
     }
     
     if(mem)

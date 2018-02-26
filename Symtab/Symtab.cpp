@@ -87,7 +87,7 @@ void Symtab::lookup(const std::string name, int type, int &l, int &o)
 	{
 		if (m_content[i][name].type & type) //Bitshifting
 		{
-			std::cout << type << " equal to " << m_content[i][name].type << std::endl;
+			std::cout << "Search Type: " <<type << " exists " << m_content[i][name].type << std::endl;
 			
 			l = m_level - i;
 			o = m_content[i][name].nr;
