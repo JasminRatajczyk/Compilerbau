@@ -4,13 +4,19 @@
 
 enum { st_var = 1, st_const = 2, st_proc = 4 };
 
-class Symtab_entry
+struct Symtab_entry
 {
 	public:
 		Symtab_entry(int = 0, int = 0);
-		
 		int type;
 		int nr;
+		int proc;
+};
+
+struct Proc_Entry : Symtab_entry
+{
+	public:
+		Proc_Entry(int = 0, int = 0);
 };
 
 class Symtab

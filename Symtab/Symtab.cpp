@@ -7,6 +7,11 @@ Symtab_entry::Symtab_entry(int t, int n)
 	nr = n;
 }
 
+Proc_Entry::Proc_Entry(int n, int p) : Symtab_entry(st_proc, n)			   
+{
+	proc = p;
+}
+
 Symtab::Symtab() 
 {
 	m_level = -1;
@@ -47,8 +52,14 @@ void Symtab::insert(const std::string name, const int typ)
 
 	if (m_content[m_level].find(name) == m_content[m_level].end()) 
 	{
-		m_content[m_level][name] =
-			Symtab_entry(typ, n);
+		if (typ > 3)
+		{
+			m_content[m_level][name] = Proc_Entry(n, ++m_procnr);			
+		}
+		else
+		{
+			m_content[m_level][name] = Symtab_entry(typ, n);
+		}
 			
 		std::cout << "Symtab insert '" << name << "', " << 
 		"Typ: " << m_content[m_level][name].type << 
@@ -76,6 +87,8 @@ void Symtab::lookup(const std::string name, int type, int &l, int &o)
 	{
 		if (m_content[i][name].type & type) //Bitshifting
 		{
+			std::cout << type << " equal to " << m_content[i][name].type << std::endl;
+			
 			l = m_level - i;
 			o = m_content[i][name].nr;
 
@@ -119,7 +132,14 @@ int Symtab::get_procnr()
 
 int Symtab::get_procnr(const std::string name)
 {
-	int l = 0, o = 0, value = 0;
-	lookup(name, st_proc, l, o);
-	return value;
+	int i = m_level + 1;
+	int num = -1;
+	
+	while(i-- >= 0 && m_content[i].find(name) == m_content[i].end()){}
+	if(i >= 0){
+		if(m_content[i][name].type == st_proc) {
+			num = m_content[i][name].proc;
+		}
+	}
+	return num;
 }

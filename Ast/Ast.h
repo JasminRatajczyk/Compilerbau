@@ -1,8 +1,11 @@
-
-#include "../Memory/Memory.hpp"
-
 #ifndef __PL_TREE_H__
 #define __PL_TREE_H__ 1
+
+#include "../Memory/Memory.hpp"
+#include "../ProcList/ProcList.hpp"
+
+//forward declaration
+class ProcList;
 
 typedef struct b_node * block;
 typedef struct b_node block_node;
@@ -18,9 +21,8 @@ typedef struct e_node expression_node;
 
 enum //different types of statements
 {
-	stmnt_end, stmnt_write, stmnt_read, 
-	stmnt_assign, stmnt_if, stmnt_while,
-	stmnt_call
+	stmnt_write = 0, stmnt_read, stmnt_assign, 
+	stmnt_if, stmnt_while, stmnt_call
 };
 
 struct b_node
@@ -29,6 +31,7 @@ struct b_node
 	variable  variables;
 	block     blocks;
 	statement statements;
+	char* name[100];
 };
 
 struct s_node // used for all kinds of statements
@@ -36,9 +39,11 @@ struct s_node // used for all kinds of statements
 	int type;   //Befehl
 	int stl;    //Level der Symboltabellen fuer assign und read
 	int sto;	//Offset der Symboltabellen fuer assign und read
-	statement  next; //Naechster Befehl
+	statement  follow; //Neachster Befehl
+	statement  next; //Auszufuehrender Befehl wenn Bedingung erfuellt
 	expression cond; //Abhaengige Kette fuer if und while
 	Memory* mem;
+	block b;
 };
 
 struct v_node //used for variable and const
@@ -47,7 +52,6 @@ struct v_node //used for variable and const
 	int stl;
 	int sto;
 	variable next;
-	Memory* mem;
 };
 
 struct e_node //expression, factor, term
@@ -66,19 +70,19 @@ void block_code ( block );
 void block_free ( block );
 double block_result ( block );
 block new_block ( variable, variable, block, statement);
+block new_block ( variable, variable, block, statement, char*, int, int);
 
 //STATEMENT
 void statement_output ( statement , int );
 void statement_code ( statement );
 void statement_free ( statement );
 double statement_result ( statement );
-statement new_statement (int, int, int, statement, expression, Memory* );
+statement new_statement (int, int, int, statement, expression, Memory*, block, statement );
 
 //VARIABLE
 void variable_output ( variable , int );
 void variable_code ( variable );
 void variable_free ( variable );
-double variable_result ( variable);
 variable new_variable (int, int, int, variable);
 
 //EXPRESSION
@@ -89,10 +93,4 @@ double expression_result ( expression );
 expression new_expression ( char *, expression, expression, Memory*  );
 expression new_expression ( char *, expression, expression, Memory*, int, int );
 
-/*
-void tree_code(node);
-void tree_output(node);
-double tree_result();
-void tree_free();
-*/
 #endif

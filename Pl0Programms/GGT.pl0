@@ -5,7 +5,7 @@ BEGIN
     BEGIN
         IF a > b THEN a := a - b;
         IF b > a THEN b := b - a;
-    END
+    END;
     g := a;
 END;
 BEGIN
