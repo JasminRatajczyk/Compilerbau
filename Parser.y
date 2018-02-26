@@ -216,7 +216,7 @@ statement: t_IDENT t_ASSIGN expression
             $$ = new_statement ( stmnt_read, stl, sto, NULL, NULL, mem, NULL, NULL);
             printf("ReadStatement");
          }
-         | t_WRITE expression 
+         | t_WRITE expression
          {            
             if ($2)
             {
@@ -257,7 +257,9 @@ anotherStatement: t_SEMICOLON statement anotherStatement
 
 condition: t_ODD expression
          {
-             $$ = new_expression ((char*)"ODD", $2, NULL, mem);
+             char buffer[100];
+              snprintf(buffer, sizeof(buffer), "ODD");
+             $$ = new_expression (buffer, $2, NULL, mem);
              printf("OddCondition\n");
          }
          | expression relop expression
@@ -384,7 +386,7 @@ int main(int argc, char** argv)
                     n++;
                 }
             }
-            //printf("%d\n", n);
+            //printf("%d %d\n", n, p->stl);
             mem->ram_neusegment(n, 1);
 
             printf("\n Output: \n");

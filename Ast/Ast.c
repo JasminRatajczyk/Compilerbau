@@ -243,8 +243,9 @@ double statement_result (statement p)
             int input;
             printf("input: "); 
             scanf("%d", &input);
-            
-            p->mem->setVal(p->stl, p->sto, input);
+            printf("stl: %d\n", p->stl);
+            printf("sto: %d\n", p->sto);
+            p->mem->setVal(p->sto, p->stl, input);
             break;
         }
         case stmnt_write:
@@ -267,10 +268,10 @@ double statement_result (statement p)
         case stmnt_while:
         {
             if(p->cond){
-            while (expression_result(p->cond))
-            {
-               if(p->next) statement_result(p->next);
-            }
+                while (expression_result(p->cond))
+                {
+                    if(p->next) statement_result(p->next);
+                }
             }else printf("While has no cond\n");
             break;
         }
@@ -424,8 +425,9 @@ double expression_result (expression p)
     {
        v = p->mem->getVal(p->stl, p->sto);
     }
-    printf("V %d\n", v);
     
+    printf("V %d\n", v);
+        
     switch (p->text[0]) 
     {
         case  '+': erg =         expression_result ( p->l ) +  expression_result ( p->r ); break;
